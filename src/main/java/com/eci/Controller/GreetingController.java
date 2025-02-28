@@ -1,19 +1,14 @@
 package com.eci.controller;
 
-import com.eci.annotation.GetMapping;
-import com.eci.annotation.RestController;
-import com.eci.Server.Request;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController 
 public class GreetingController {
 
     @GetMapping("/greeting")
-    public String getGreeting(Request request) {
-        // Ejemplo de uso de query params (si los hay)
-        String name = request.getValues("name");
-        if (name != null) {
-            return "{\"message\": \"Hello, " + name + "! Welcome to CurrencyConverter!\"}";
-        }
-        return "{\"message\": \"Hello! Welcome to CurrencyConverter!\"}";
+    public String getGreeting(@RequestParam(value = "name", defaultValue = "World") String name) {
+        return String.format("{\"message\": \"Hello, %s! Welcome to CurrencyConverter!\"}", name);
     }
 }
