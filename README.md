@@ -117,7 +117,7 @@ convert 5840 EUR to COP
   ```sh
    http://localhost:35000/convertir?fromCurrency=EUR&toCurrency=COP&amount=5840
   ```
-  ![image](src/main/resources/images/Uri.png)
+  ![image](src/main/resources/images/Urii.png)
 
 ### Test and Query API Endpoints
 We can use the following requests to test the services:
