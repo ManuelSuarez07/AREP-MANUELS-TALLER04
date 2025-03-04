@@ -7,15 +7,20 @@ import com.eci.annotation.RestController;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WebServerT4 {
 
     private static final Map<String, Service> services = new HashMap<>();
     private static final Map<String, MethodHandler> routes = new HashMap<>();
+    private static volatile boolean isRunning = true;
+    private static ExecutorService threadPool;
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void startServer(int port) throws IOException, URISyntaxException {
         // Registra el servicio de conversión
         services.put("/convertir", (req, resp) -> CurrencyConverter.handleCurrencyConversion(req, resp));
 
@@ -26,35 +31,59 @@ public class WebServerT4 {
             System.err.println("Error registering controllers: " + e.getMessage());
         }
 
-        // Inicia el servidor en el puerto 35000
-        try (ServerSocket serverSocket = new ServerSocket(35000)) {
-            while (true) {
-                try (
-                        Socket clientSocket = serverSocket.accept();
-                        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
-                ) {
+        // Inicia el pool de hilos
+        threadPool = Executors.newCachedThreadPool();
 
-                    String inputLine = in.readLine();
-                    if (inputLine == null) {
-                        continue;
+        // Agrega un hook para apagar el servidor de manera segura
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down server gracefully...");
+            isRunning = false;
+            threadPool.shutdown();
+            System.out.println("Server has been shut down.");
+        }));
+
+        // Inicia el servidor en el puerto especificado
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            System.out.println("Server started on port " + port + "...");
+
+            while (isRunning) {
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    threadPool.submit(() -> handleClient(clientSocket));
+                } catch (IOException e) {
+                    if (isRunning) {
+                        System.err.println("Error accepting client connection: " + e.getMessage());
                     }
-
-                    String[] requestParts = inputLine.split(" ");
-                    String method = requestParts[0];
-                    String file = requestParts[1];
-                    URI resourceURI = new URI(file);
-
-                    String response = switch (method) {
-                        case "GET" -> handleRequest("GET", resourceURI, clientSocket.getOutputStream());
-                        case "POST" -> handleRequest("POST", resourceURI, clientSocket.getOutputStream());
-                        default -> "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/plain\r\n\r\n";
-                    };
-
-                    out.println(response);
-                } catch (Exception e) {
-                    System.err.println("Error handling client: " + e.getMessage());
                 }
+            }
+        }
+    }
+
+    private static void handleClient(Socket clientSocket) {
+        try (
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
+        ) {
+            String inputLine = in.readLine();
+            if (inputLine == null) {
+                return;
+            }
+
+            String[] requestParts = inputLine.split(" ");
+            String method = requestParts[0];
+            String path = requestParts[1];
+            URI resourceURI = new URI(path);
+
+            String response = handleRequest(method, resourceURI, clientSocket.getOutputStream());
+
+            out.println(response);
+        } catch (Exception e) {
+            System.err.println("Error handling client: " + e.getMessage());
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                System.err.println("Error closing client socket: " + e.getMessage());
             }
         }
     }
@@ -125,23 +154,26 @@ public class WebServerT4 {
         }
     }
 
-    // Métodos originales para manejar archivos estáticos
-    public static String obtainFile(String path, OutputStream out) throws IOException {
+     public static String obtainFile(String path, OutputStream out) throws IOException {
         String file = path.equals("/") ? "index.html" : path.substring(1);
         String extension = file.contains(".") ? file.substring(file.lastIndexOf('.') + 1) : "";
-        String filePath = "src/main/resources/static/" + file;
+        String resourcePath = "/static/" + file;
         String responseHeader = "HTTP/1.1 200 OK\r\nContent-Type: " + obtainContentType(extension) + "\r\n\r\n";
         String notFoundResponse = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nFile not found";
 
-        try {
-            File requestedFile = new File(filePath);
-            if (requestedFile.exists()) {
+        try (InputStream inputStream = WebServerT4.class.getResourceAsStream(resourcePath)) {
+            if (inputStream != null) {
                 if (extension.matches("jpg|jpeg|png")) {
                     out.write(responseHeader.getBytes());
-                    Files.copy(requestedFile.toPath(), out);
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        out.write(buffer, 0, bytesRead);
+                    }
                     return "";
                 } else {
-                    return responseHeader + new String(Files.readAllBytes(requestedFile.toPath()));
+                    String content = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+                    return responseHeader + content;
                 }
             } else {
                 return notFoundResponse;
@@ -153,11 +185,16 @@ public class WebServerT4 {
 
     public static String obtainContentType(String extension) {
         return switch (extension) {
-            case "html", "css" -> "text/" + extension;
-            case "js" -> "text/javascript";
-            case "jpg", "jpeg" -> "image/jpeg";
-            case "png" -> "image/png";
-            default -> "text/plain";
+            case "html", "css" ->
+                "text/" + extension;
+            case "js" ->
+                "text/javascript";
+            case "jpg", "jpeg" ->
+                "image/jpeg";
+            case "png" ->
+                "image/png";
+            default ->
+                "text/plain";
         };
     }
 

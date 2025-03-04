@@ -3,6 +3,7 @@ com\eci\Server\Response.class
 com\eci\annotation\RestController.class
 com\eci\annotation\PostMapping.class
 com\eci\Server\CurrencyConverter.class
+com\eci\MainApplication$WebServerInitializer.class
 com\eci\MainApplication.class
 com\eci\Server\Service.class
 com\eci\controller\CurrencyController.class

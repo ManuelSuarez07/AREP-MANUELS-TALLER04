@@ -1,11 +1,13 @@
-# Build stage
-FROM maven:3.8.7-openjdk-17 AS build
-COPY src /app/src
-COPY pom.xml /app
-RUN mvn -f /app/pom.xml clean package
+FROM openjdk:17
 
-# Run stage
-FROM openjdk:17-jdk-slim
-COPY --from=build /app/target/currency-converter-1.0-SNAPSHOT.jar /app.jar
-EXPOSE 5000
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Directorio de trabajo dentro del contenedor
+WORKDIR /usrapp
+
+# Copiar el archivo JAR de la aplicación al contenedor
+COPY target/WebServerT4-1.0-SNAPSHOT.jar app.jar
+
+# Exponer el puerto 35000 (el puerto interno de la aplicación)
+EXPOSE 35000
+
+# Comando para ejecutar la aplicación
+ENTRYPOINT ["java", "-jar", "app.jar", "com.eci.MainApplication"]

@@ -1,21 +1,53 @@
 package com.eci;
 
+import com.eci.Server.WebServerT4;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import java.util.Collections;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 @SpringBootApplication
 public class MainApplication {
+
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(MainApplication.class);
-        app.setDefaultProperties(Collections.singletonMap("server.port", getPort()));
-        app.run(args);
+        // Iniciar la aplicación Spring Boot
+        SpringApplication.run(MainApplication.class, args);
     }
 
-    private static int getPort() {
-        if (System.getenv("PORT") != null) {
-            return Integer.parseInt(System.getenv("PORT"));
+    /**
+     * Bean para configurar el puerto del servidor HTTP (WebServerT4).
+     */
+    @Bean
+    public Integer serverPort() {
+        return 35000; // Puerto único para el servidor HTTP y Spring Boot
+    }
+
+    /**
+     * Componente para iniciar el servidor HTTP (WebServerT4) cuando Spring Boot esté listo.
+     */
+    @Component
+    public static class WebServerInitializer {
+
+        private final Integer serverPort;
+
+        public WebServerInitializer(Integer serverPort) {
+            this.serverPort = serverPort;
         }
-        return 35500; 
+
+        @EventListener(ContextRefreshedEvent.class)
+        public void startWebServer() {
+            try {
+                // Iniciar el servidor HTTP en el puerto configurado
+                WebServerT4.startServer(serverPort);
+                System.out.println("Servidor HTTP iniciado en el puerto: " + serverPort);
+            } catch (IOException | URISyntaxException e) {
+                System.err.println("Error al iniciar el servidor HTTP: " + e.getMessage());
+            }
+        }
     }
 }
