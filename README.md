@@ -1,6 +1,6 @@
-# Application Server Architectures Workshop: Object Meta-Protocols, IoC Pattern, and Reflection Applied in a Currency Converter
+# Modularization with virtualization workshop and Introduction to Docker
 
-This project implements a Web server (WebServerT3) that serves static files and provides an API for managing currency exchange rates and performing currency conversions using the CurrencyConverter class. The API allows adding new currencies and retrieving all current exchange rates. Additionally, the project includes a front-end web interface featuring an interactive currency converter for user-friendly conversions.
+The workshop consists of creating a small web application using SPRING. Once we have this application we will proceed to build a Docker container for the application and deploy and configure them on our local machine. Then, we will create a repository on DockerHub and upload the image to the repository. Finally, we will create a virtual machine in AWS, install Docker and deploy the container we just created.
 
 ## Features
 
@@ -30,7 +30,8 @@ This project implements a Web server (WebServerT3) that serves static files and 
 │   │   │   │   ├── Request.java            # Handles HTTP requests
 │   │   │   │   ├── Response.java           # Handles HTTP responses
 │   │   │   │   ├── Service.java            # Core service for web server operations
-│   │   │   │   ├── WebServerT3.java        # Main web server implementation
+│   │   │   │   ├── WebServerT4.java        # Webserver
+│   │   │   ├── MainApplication.java        # Main class
 │   ├── resources/
 │   │   ├── images/
 │   │   │   ├── fondo.jpg                   # Background image
@@ -81,11 +82,11 @@ This project implements a Web server (WebServerT3) that serves static files and 
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/ManuelSuarez07/AREP-MANUELS-TALLER01.git
+   git clone https://github.com/ManuelSuarez07/AREP-MANUELS-TALLER04.git
    ```
 2. Navigate to the project directory:
    ```sh
-   cd AREP-MANUELS-TALLER01-main
+   cd AREP-MANUELS-TALLER04-main
    ```
 3. Compile the project:
    ```sh
@@ -141,6 +142,41 @@ Get All Currencies (GET), retrieve all available currencies and their exchange r
   http://localhost:35000/api/currencies  
   ```
   ![image](src/main/resources/images/Get.png)
+
+## Docker
+#### This part consists of the implementation in Docker
+1.
+![image](src/main/resources/images/Docker1.png)
+2.
+![image](src/main/resources/images/Docker1.png)
+3.
+![image](src/main/resources/images/Docker1.png)
+4.
+![image](src/main/resources/images/Docker1.png)
+5.
+![image](src/main/resources/images/Docker1.png)
+6.
+![image](src/main/resources/images/Docker1.png)
+7.
+![image](src/main/resources/images/Docker1.png)
+8.
+![image](src/main/resources/images/Docker1.png)
+9.
+![image](src/main/resources/images/Docker1.png)
+10.
+[Descargar el video](src/main/resources/images/DockerVid.mp4)
+
+## AWS
+#### This part consists of the implementation in AWS
+1.
+![image](src/main/resources/images/AWS1.png)
+2.
+![image](src/main/resources/images/AWS2.png)
+3.
+![image](src/main/resources/images/AWS3.png)
+4.
+[Descargar el video](src/main/resources/images/AWSVid.mp4)
+
 ## Running the Tests
 
 To execute unit tests, use JUnit:
@@ -163,4 +199,4 @@ mvn test
 
 ## Version
 
-Version 3.0
+Version 4.0
