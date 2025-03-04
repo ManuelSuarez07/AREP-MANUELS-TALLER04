@@ -148,21 +148,21 @@ Get All Currencies (GET), retrieve all available currencies and their exchange r
 1.
 ![image](src/main/resources/images/Docker1.png)
 2.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker2.png)
 3.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker3.png)
 4.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker4.png)
 5.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker5.png)
 6.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker6.png)
 7.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker7.png)
 8.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker8.png)
 9.
-![image](src/main/resources/images/Docker1.png)
+![image](src/main/resources/images/Docker9.png)
 10.
 [Descargar el video](src/main/resources/images/DockerVid.mp4)
 
